@@ -17,9 +17,7 @@ import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
 import org.junit.runner.RunWith;
-
-import rx.Observer;
-
+import io.reactivex.observers.DisposableObserver;
 import static junit.framework.Assert.assertEquals;
 import static junit.framework.Assert.fail;
 import static org.hamcrest.core.IsInstanceOf.instanceOf;
@@ -129,9 +127,9 @@ public class ReservoirTest {
 
         testPutObject.setTestString(TEST_STRING);
 
-        Reservoir.putUsingObservable(KEY, testPutObject).subscribe(new Observer<Boolean>() {
+        Reservoir.putUsingObservable(KEY, testPutObject).subscribe(new DisposableObserver<Boolean>() {
             @Override
-            public void onCompleted() {
+            public void onComplete() {
 
             }
 
@@ -142,9 +140,9 @@ public class ReservoirTest {
 
             @Override
             public void onNext(Boolean success) {
-                Reservoir.getUsingObservable(KEY, TestClass.class).subscribe(new Observer<TestClass>() {
+                Reservoir.getUsingObservable(KEY, TestClass.class).subscribe(new DisposableObserver<TestClass>() {
                     @Override
-                    public void onCompleted() {
+                    public void onComplete() {
 
                     }
 
@@ -170,9 +168,9 @@ public class ReservoirTest {
 
         i = 0;
 
-        Reservoir.putUsingObservable(KEY, testStrings).subscribe(new Observer<Boolean>() {
+        Reservoir.putUsingObservable(KEY, testStrings).subscribe(new DisposableObserver<Boolean>() {
             @Override
-            public void onCompleted() {
+            public void onComplete() {
 
             }
 
@@ -187,9 +185,9 @@ public class ReservoirTest {
                 final Type testResultType = new TypeToken<List<String>>() {
                 }.getType();
 
-                Reservoir.getUsingObservable(KEY, String.class, testResultType).subscribe(new Observer<String>() {
+                Reservoir.getUsingObservable(KEY, String.class, testResultType).subscribe(new DisposableObserver<String>() {
                     @Override
-                    public void onCompleted() {
+                    public void onComplete() {
 
                     }
 
@@ -232,9 +230,9 @@ public class ReservoirTest {
     @Test
     public void testRxShouldCallOnFailureWhenObjectDoesNotExist() throws
             Exception {
-        Reservoir.getUsingObservable("non_existent_key", TestClass.class).subscribe(new Observer<TestClass>() {
+        Reservoir.getUsingObservable("non_existent_key", TestClass.class).subscribe(new DisposableObserver<TestClass>() {
             @Override
-            public void onCompleted() {
+            public void onComplete() {
                 fail();
             }
 
@@ -279,9 +277,9 @@ public class ReservoirTest {
     @Test
     public void testRxShouldThrowIOExceptionWhenObjectSizeGreaterThanCacheSize() throws
             Exception {
-        Reservoir.putUsingObservable(KEY, TestUtils.getLargeString()).subscribe(new Observer<Boolean>() {
+        Reservoir.putUsingObservable(KEY, TestUtils.getLargeString()).subscribe(new DisposableObserver<Boolean>() {
             @Override
-            public void onCompleted() {
+            public void onComplete() {
                 fail();
             }
 
@@ -338,9 +336,9 @@ public class ReservoirTest {
         testPutObject.setTestString(TEST_STRING);
         Reservoir.put(KEY, testPutObject);
 
-        Reservoir.deleteUsingObservable(KEY).subscribe(new Observer<Boolean>() {
+        Reservoir.deleteUsingObservable(KEY).subscribe(new DisposableObserver<Boolean>() {
             @Override
-            public void onCompleted() {
+            public void onComplete() {
 
             }
 
@@ -400,9 +398,9 @@ public class ReservoirTest {
         testPutObject.setTestString(TEST_STRING);
         Reservoir.put(KEY, testPutObject);
 
-        Reservoir.clearUsingObservable().subscribe(new Observer<Boolean>() {
+        Reservoir.clearUsingObservable().subscribe(new DisposableObserver<Boolean>() {
             @Override
-            public void onCompleted() {
+            public void onComplete() {
 
             }
 

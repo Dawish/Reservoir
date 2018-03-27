@@ -4,16 +4,16 @@ import android.content.Context;
 import android.os.AsyncTask;
 
 import com.google.gson.Gson;
-
 import java.io.File;
 import java.io.IOException;
 import java.lang.reflect.Type;
 import java.util.Collection;
 
-import rx.Observable;
-import rx.Subscriber;
-import rx.android.schedulers.AndroidSchedulers;
-import rx.schedulers.Schedulers;
+import io.reactivex.Observable;
+import io.reactivex.ObservableEmitter;
+import io.reactivex.ObservableOnSubscribe;
+import io.reactivex.android.schedulers.AndroidSchedulers;
+import io.reactivex.schedulers.Schedulers;
 
 /**
  * The main reservoir class.
@@ -140,21 +140,21 @@ public class Reservoir {
      *
      * @param key    the key string.
      * @param object the object to be stored.
-     * @return an {@link Observable} that will insert the object into Reservoir. By default, this
+     * @return an {@link io.reactivex.Observable} that will insert the object into Reservoir. By default, this
      * will be scheduled on a background thread and will be observed on the main thread.
      * @throws IllegalStateException thrown if init method hasn't been called.
      */
     public static Observable<Boolean> putUsingObservable(final String key, final Object object) {
         failIfNotInitialised();
-        return Observable.create(new Observable.OnSubscribe<Boolean>() {
+        return Observable.create(new ObservableOnSubscribe<Boolean>() {
             @Override
-            public void call(Subscriber<? super Boolean> subscriber) {
+            public void subscribe(ObservableEmitter<Boolean> emitter) throws Exception {
                 try {
                     Reservoir.put(key, object);
-                    subscriber.onNext(true);
-                    subscriber.onCompleted();
+                    emitter.onNext(true);
+                    emitter.onComplete();
                 } catch (Exception exception) {
-                    subscriber.onError(exception);
+                    emitter.onError(exception);
                 }
             }
         }).subscribeOn(Schedulers.io()).observeOn(AndroidSchedulers.mainThread());
@@ -242,18 +242,20 @@ public class Reservoir {
      */
     public static <T> Observable<T> getUsingObservable(final String key, final Class<T> classOfT) {
         failIfNotInitialised();
-        return Observable.create(new Observable.OnSubscribe<T>() {
+
+        return Observable.create(new ObservableOnSubscribe<T>() {
             @Override
-            public void call(Subscriber<? super T> subscriber) {
+            public void subscribe(ObservableEmitter<T> emitter) throws Exception {
                 try {
                     T t = Reservoir.get(key, classOfT);
-                    subscriber.onNext(t);
-                    subscriber.onCompleted();
+                    emitter.onNext(t);
+                    emitter.onComplete();
                 } catch (Exception exception) {
-                    subscriber.onError(exception);
+                    emitter.onError(exception);
                 }
             }
         }).subscribeOn(Schedulers.io()).observeOn(AndroidSchedulers.mainThread());
+
     }
 
     /**
@@ -269,17 +271,18 @@ public class Reservoir {
      */
     public static <T> Observable<T> getUsingObservable(final String key, final Class<T> classOfT, final Type typeOfT) {
         failIfNotInitialised();
-        return Observable.create(new Observable.OnSubscribe<T>() {
+
+        return Observable.create(new ObservableOnSubscribe<T>() {
             @Override
-            public void call(Subscriber<? super T> subscriber) {
+            public void subscribe(ObservableEmitter<T> emitter) throws Exception {
                 try {
                     Collection<T> collectionOfT = Reservoir.get(key, typeOfT);
                     for (T t : collectionOfT) {
-                        subscriber.onNext(t);
+                        emitter.onNext(t);
                     }
-                    subscriber.onCompleted();
+                    emitter.onComplete();
                 } catch (Exception exception) {
-                    subscriber.onError(exception);
+                    emitter.onError(exception);
                 }
             }
         }).subscribeOn(Schedulers.io()).observeOn(AndroidSchedulers.mainThread());
@@ -326,15 +329,15 @@ public class Reservoir {
      */
     public static Observable<Boolean> deleteUsingObservable(final String key) {
         failIfNotInitialised();
-        return Observable.create(new Observable.OnSubscribe<Boolean>() {
+        return Observable.create(new ObservableOnSubscribe<Boolean>() {
             @Override
-            public void call(Subscriber<? super Boolean> subscriber) {
+            public void subscribe(ObservableEmitter<Boolean> emitter) throws Exception {
                 try {
                     Reservoir.delete(key);
-                    subscriber.onNext(true);
-                    subscriber.onCompleted();
+                    emitter.onNext(true);
+                    emitter.onComplete();
                 } catch (Exception exception) {
-                    subscriber.onError(exception);
+                    emitter.onError(exception);
                 }
             }
         }).subscribeOn(Schedulers.io()).observeOn(AndroidSchedulers.mainThread());
@@ -374,15 +377,15 @@ public class Reservoir {
      */
     public static Observable<Boolean> clearUsingObservable() {
         failIfNotInitialised();
-        return Observable.create(new Observable.OnSubscribe<Boolean>() {
+        return Observable.create(new ObservableOnSubscribe<Boolean>() {
             @Override
-            public void call(Subscriber<? super Boolean> subscriber) {
+            public void subscribe(ObservableEmitter<Boolean> emitter) throws Exception {
                 try {
                     Reservoir.clear();
-                    subscriber.onNext(true);
-                    subscriber.onCompleted();
+                    emitter.onNext(true);
+                    emitter.onComplete();
                 } catch (Exception exception) {
-                    subscriber.onError(exception);
+                    emitter.onError(exception);
                 }
             }
         }).subscribeOn(Schedulers.io()).observeOn(AndroidSchedulers.mainThread());
