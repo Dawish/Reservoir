@@ -3,7 +3,6 @@ package com.anupcowkur.reservoir;
 import android.content.Context;
 import android.os.AsyncTask;
 
-import com.google.gson.Gson;
 import java.io.File;
 import java.io.IOException;
 import java.lang.reflect.Type;
@@ -26,7 +25,7 @@ public class Reservoir {
 
     private static boolean initialised = false;
 
-    private static Gson sGson;
+    private static Converter converter;
 
     /**
      * Initialize Reservoir
@@ -36,7 +35,7 @@ public class Reservoir {
      * @throws IOException thrown if the cache cannot be initialized.
      */
     public static synchronized void init(final Context context, final long maxSize) throws IOException {
-        init(context, maxSize, new Gson());
+        init(context, maxSize, new ConverterFactory());
     }
 
     /**
@@ -44,15 +43,15 @@ public class Reservoir {
      *
      * @param context context.
      * @param maxSize the maximum size in bytes.
-     * @param gson    the Gson instance.
+     * @param mConverter    the Gson instance.
      * @throws IOException thrown if the cache cannot be initialized.
      */
-    public static synchronized void init(final Context context, final long maxSize, final Gson gson) throws IOException {
+    public static synchronized void init(final Context context, final long maxSize, final Converter mConverter) throws IOException {
         //Create a directory inside the application specific cache directory. This is where all
         // the key-value pairs will be stored.
         cacheDir = new File(context.getCacheDir() + "/Reservoir");
         createCache(cacheDir, maxSize);
-        sGson = gson;
+        converter = mConverter;
         initialised = true;
     }
 
@@ -112,7 +111,7 @@ public class Reservoir {
      */
     public static void put(final String key, final Object object) throws IOException {
         failIfNotInitialised();
-        String json = sGson.toJson(object);
+        String json = converter.toJson(object);
         cache.put(key, json);
     }
 
@@ -173,7 +172,7 @@ public class Reservoir {
     public static <T> T get(final String key, final Class<T> classOfT) throws IOException {
         failIfNotInitialised();
         String json = cache.getString(key).getString();
-        T value = sGson.fromJson(json, classOfT);
+        T value = converter.fromJson(json, classOfT);
         if (value == null)
             throw new NullPointerException();
         return value;
@@ -192,7 +191,7 @@ public class Reservoir {
     public static <T> T get(final String key, final Type typeOfT) throws IOException {
         failIfNotInitialised();
         String json = cache.getString(key).getString();
-        T value = sGson.fromJson(json, typeOfT);
+        T value = converter.fromJson(json, typeOfT);
         if (value == null)
             throw new NullPointerException();
         return value;
@@ -422,7 +421,7 @@ public class Reservoir {
         protected Void doInBackground(Void... params) {
 
             try {
-                String json = sGson.toJson(object);
+                String json = converter.toJson(object);
                 cache.put(key, json);
             } catch (Exception e) {
                 this.e = e;
@@ -475,9 +474,9 @@ public class Reservoir {
                 String json = cache.getString(key).getString();
                 T value;
                 if (classOfT != null) {
-                    value = sGson.fromJson(json, classOfT);
+                    value = converter.fromJson(json, classOfT);
                 } else {
-                    value = sGson.fromJson(json, typeOfT);
+                    value = converter.fromJson(json, typeOfT);
                 }
                 if (value == null) {
                     throw new NullPointerException();
