@@ -10,7 +10,7 @@ import java.lang.reflect.Type;
  * @desc default json converter factory
  */
 
-public class ConverterFactory implements Converter {
+public class GsonConverterFactory implements Converter {
 
     static Gson gson = new Gson();
 

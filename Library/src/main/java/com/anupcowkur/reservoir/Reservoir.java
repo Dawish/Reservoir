@@ -35,7 +35,7 @@ public class Reservoir {
      * @throws IOException thrown if the cache cannot be initialized.
      */
     public static synchronized void init(final Context context, final long maxSize) throws IOException {
-        init(context, maxSize, new ConverterFactory());
+        init(context, maxSize, new GsonConverterFactory());
     }
 
     /**
